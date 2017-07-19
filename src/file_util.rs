@@ -10,13 +10,13 @@ use std::os::unix::io::AsRawFd;
 use std::os::unix::ffi::OsStrExt;
 
 use nix;
-use libc::{uid_t, gid_t, c_int, utime, utimbuf};
+use libc::{uid_t, gid_t, c_int, c_char, utime, utimbuf};
 use nix::fcntl::{flock, FlockArg};
 
 use path_util::ToCString;
 
 extern "C" {
-    fn lchown(path: *const i8, owner: uid_t, group: gid_t) -> c_int;
+    fn lchown(path: *const c_char, owner: uid_t, group: gid_t) -> c_int;
 }
 
 pub struct Lock {

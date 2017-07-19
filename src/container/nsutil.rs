@@ -31,7 +31,7 @@ pub fn set_namespace<P:AsRef<Path>>(path: P, ns: Namespace)
     if fd < 0 {
         return Err(IoError::last_os_error());
     }
-    let rc = unsafe { setns(fd, ns.to_clone_flag() as i32) };
+    let rc = unsafe { setns(fd, ns.to_clone_flag().bits()) };
     unsafe { close(fd) };
     if rc < 0 {
         return Err(IoError::last_os_error());
@@ -46,7 +46,7 @@ pub fn unshare_namespace(ns: Namespace) -> Result<(), IoError> {
 
 #[cfg(feature="containers")]
 pub fn unshare_namespace(ns: Namespace) -> Result<(), IoError> {
-    let rc = unsafe { unshare(ns.to_clone_flag() as i32) };
+    let rc = unsafe { unshare(ns.to_clone_flag().bits()) };
     if rc < 0 {
         return Err(IoError::last_os_error());
     }
