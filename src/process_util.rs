@@ -2,7 +2,6 @@ use std::env;
 use std::fmt;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
-use std::os::unix::io::RawFd;
 
 use libc::{getuid, kill, c_int, pid_t};
 use libc::{SIGINT, SIGTERM, SIGCHLD, SIGTTIN, SIGTTOU, SIGCONT};

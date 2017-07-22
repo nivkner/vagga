@@ -3,7 +3,6 @@ use std::io::Error as IoError;
 use std::os::unix::ffi::OsStrExt;
 use std::path::Path;
 
-use libc::{c_int};
 use libc::{open, close};
 use libc::{O_RDONLY, O_CLOEXEC};
 use nix::sched::{unshare, setns, CloneFlags};

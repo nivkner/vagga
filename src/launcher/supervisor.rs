@@ -8,7 +8,7 @@ use argparse::{ArgumentParser, List};
 use signal::trap::Trap;
 use libc::{c_int, pid_t};
 use libc::{SIGINT, SIGTERM, SIGCHLD, SIGTTIN, SIGTTOU, SIGTSTP};
-use libc::{SIGQUIT, SIGKILL, SIGSTOP, SIGCONT};
+use libc::{SIGQUIT, SIGSTOP, SIGCONT};
 use nix::unistd::getpid;
 use unshare::{Command, Child, Namespace, reap_zombies, Fd, Signal};
 
