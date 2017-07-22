@@ -6,14 +6,8 @@ use std::path::Path;
 use libc::{c_int};
 use libc::{open, close};
 use libc::{O_RDONLY, O_CLOEXEC};
+use nix::sched::{unshare, setns, CloneFlags};
 use unshare::Namespace;
-
-
-#[cfg(feature="containers")]
-extern {
-    fn setns(fd: c_int, nstype: c_int) -> c_int;
-    fn unshare(flags: c_int) -> c_int;
-}
 
 #[cfg(not(feature="containers"))]
 pub fn set_namespace<P:AsRef<Path>>(path: P, ns: Namespace)
@@ -31,12 +25,9 @@ pub fn set_namespace<P:AsRef<Path>>(path: P, ns: Namespace)
     if fd < 0 {
         return Err(IoError::last_os_error());
     }
-    let rc = unsafe { setns(fd, ns.to_clone_flag() as i32) };
+    let rc = setns(fd, CloneFlags::from_bits_truncate(ns.clone_flag()));
     unsafe { close(fd) };
-    if rc < 0 {
-        return Err(IoError::last_os_error());
-    }
-    return Ok(());
+    rc.map_err( |_| { IoError::last_os_error() })
 }
 
 #[cfg(not(feature="containers"))]
@@ -46,9 +37,6 @@ pub fn unshare_namespace(ns: Namespace) -> Result<(), IoError> {
 
 #[cfg(feature="containers")]
 pub fn unshare_namespace(ns: Namespace) -> Result<(), IoError> {
-    let rc = unsafe { unshare(ns.to_clone_flag() as i32) };
-    if rc < 0 {
-        return Err(IoError::last_os_error());
+    let rc = unshare(CloneFlags::from_bits_truncate(ns.clone_flag()));
+    rc.map_err( |_| { IoError::last_os_error() })
     }
-    return Ok(());
-}

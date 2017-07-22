@@ -729,10 +729,10 @@ pub fn isolate_network() -> Result<(), String> {
         create_isolated_network(),
         "Cannot create network namespace: {err}");
     try_msg!(setns(isolated_net.userns.as_raw_fd(),
-            CloneFlags::from_bits_truncate(Namespace::User.to_clone_flag() as i32)),
+            CloneFlags::from_bits_truncate(Namespace::User.clone_flag())),
         "Cannot set user namespace: {err}");
     try_msg!(setns(isolated_net.netns.as_raw_fd(),
-            CloneFlags::from_bits_truncate(Namespace::Net.to_clone_flag() as i32)),
+            CloneFlags::from_bits_truncate(Namespace::Net.clone_flag())),
         "Cannot set network namespace: {err}");
     Ok(())
 }
