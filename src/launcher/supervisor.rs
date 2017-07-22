@@ -10,7 +10,7 @@ use libc::{c_int, pid_t};
 use libc::{SIGINT, SIGTERM, SIGCHLD, SIGTTIN, SIGTTOU, SIGTSTP};
 use libc::{SIGQUIT, SIGKILL, SIGSTOP, SIGCONT};
 use nix::unistd::getpid;
-use unshare::{Command, Child, Namespace, reap_zombies, Fd};
+use unshare::{Command, Child, Namespace, reap_zombies, Fd, Signal};
 
 use options::build_mode::{build_mode, BuildMode};
 use container::nsutil::{set_namespace, unshare_namespace};
@@ -341,7 +341,7 @@ pub fn run(sup: &SuperviseInfo, args: Args, data: Data,
     if error {
         errcode = 127;
         for &(_, ref child) in children.values() {
-            child.signal(SIGTERM).ok();
+            child.signal(Signal::SIGTERM).ok();
         }
     } else if children.len() == 0 {
         writeln!(&mut stderr(),
@@ -387,7 +387,7 @@ pub fn run(sup: &SuperviseInfo, args: Args, data: Data,
                                 children.remove(&pid);
                             }
                             for &(_, ref child) in children.values() {
-                                child.signal(SIGTERM).ok();
+                                child.signal(Signal::SIGTERM).ok();
                             }
                             tty_guard.check().map_err(|e|
                                 format!("Error handling tty: {}", e))?;
@@ -442,7 +442,7 @@ pub fn run(sup: &SuperviseInfo, args: Args, data: Data,
                         children.values().map(|&(name, _)| name)
                             .collect::<Vec<_>>());
                     for &(_, ref child) in children.values() {
-                        child.signal(SIGKILL).ok();
+                        child.signal(Signal::SIGKILL).ok();
                     }
                     // Basically this deadline should never happen
                     deadline = Instant::now() + Duration::from_secs(3600);

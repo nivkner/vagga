@@ -151,13 +151,14 @@ pub fn run_and_wait(cmd: &mut Command)
             SIGCHLD => {
                 for event in child_events() {
                     use unshare::ChildEvent::*;
+		    use unshare::Signal;
                     match event {
                         Death(pid, status) if pid == child.pid() => {
                             tty_guard.check().map_err(|e|
                                 format!("Error handling tty: {}", e))?;
                             return Ok(status);
                         }
-                        Stop(pid, SIGTTIN) | Stop(pid, SIGTTOU) => {
+                        Stop(pid, Signal::SIGTTIN) | Stop(pid, Signal::SIGTTOU) => {
                             if let Err(e) = tty_guard.give(pid) {
                                 // We shouldn't exit from here if we can't
                                 // give a tty. Hopefull user will notice the
@@ -201,7 +202,7 @@ pub fn get_sig_name(sig: c_int) -> String {
 pub fn convert_status(st: ExitStatus) -> i32 {
     match st {
         ExitStatus::Exited(c) => c as i32,
-        ExitStatus::Signaled(s, _) => 128 + s,
+        ExitStatus::Signaled(s, _) => 128 + s as c_int,
     }
 }
 
