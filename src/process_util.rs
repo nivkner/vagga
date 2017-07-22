@@ -2,12 +2,11 @@ use std::env;
 use std::fmt;
 use std::io::{self, Read};
 use std::path::{Path, PathBuf};
-use std::os::unix::io::FromRawFd;
+use std::os::unix::io::RawFd;
 
 use libc::{getuid, kill, c_int, pid_t};
 use libc::{SIGINT, SIGTERM, SIGCHLD, SIGTTIN, SIGTTOU, SIGCONT};
 use libc::{SIGQUIT, SIGTSTP, SIGSTOP};
-use nix;
 use nix::sys::signal::Signal;
 use nix::unistd::getpid;
 use unshare;
@@ -40,9 +39,9 @@ lazy_static! {
 
 
 pub fn squash_stdio(cmd: &mut Command) -> Result<(), String> {
-    let fd = nix::unistd::dup(2)
+    let stdio = Stdio::dup_raw_fd(2)
         .map_err(|e| format!("Can't duplicate fd 2: {}", e))?;
-    cmd.stdout(unsafe { Stdio::from_raw_fd(fd) });
+    cmd.stdout(stdio);
     cmd.stdin(Stdio::null());
     Ok(())
 }
